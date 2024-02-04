@@ -1,9 +1,49 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
+	"os"
+	"sync"
 )
 
 func pwCracker() {
-	fmt.Print("Password cracker")
+
+	target := "password"
+	method := "raw"
+	filePath := "passwords.txt"
+
+	// Read arguments: password, method, path do dictionary file
+	result := readArguments()
+	if len(result) >= 3 {
+		target = result[0]
+		method = result[1]
+		filePath = result[2]
+	}
+
+	// Get encrypted password or "raw method" if password is actually encrypted
+	//targetEncrypted := encryption(target, method)
+	_ = method
+	targetEncrypted := target
+
+	// Read file
+	file, err := os.Open(filePath)
+	if err != nil {
+		fmt.Println("Error during opening file:", err)
+		return
+	}
+	defer file.Close()
+
+	var wg sync.WaitGroup
+	scanner := bufio.NewScanner(file)
+
+	for scanner.Scan() {
+		// Evaluate next potentially correct password
+		wg.Add(1)
+		go worker(targetEncrypted, scanner.Text(), method, &wg)
+
+	}
+
+	wg.Wait()
+	fmt.Println("No matches found")
 }
