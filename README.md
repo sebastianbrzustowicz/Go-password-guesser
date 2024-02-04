@@ -7,7 +7,7 @@ For 'all' option, each method is split into goroutines, and these are then split
 Cracking supports many encryption types:  
 <big>raw, MD4, MD5, SHA-1, SHA-226, SHA-256, SHA-384, SHA-512, AES</big>.
 
-# Signarure
+# Signature
 
 To run the script you have to follow this command:
 
