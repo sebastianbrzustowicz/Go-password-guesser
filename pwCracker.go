@@ -23,7 +23,6 @@ func pwCracker() {
 
 	// Get encrypted password or "raw method" if password is actually encrypted
 	//targetEncrypted := encryption(target, method)
-	_ = method
 	targetEncrypted := target
 
 	// Read file
@@ -34,16 +33,39 @@ func pwCracker() {
 	}
 	defer file.Close()
 
+	// Workser planning
 	var wg sync.WaitGroup
-	scanner := bufio.NewScanner(file)
+	if method != "all" {
 
-	for scanner.Scan() {
-		// Evaluate next potentially correct password
-		wg.Add(1)
-		go worker(targetEncrypted, scanner.Text(), method, &wg)
+		scanner := bufio.NewScanner(file)
+		for scanner.Scan() {
+			// Evaluate next potentially correct password
+			wg.Add(1)
+			go worker(targetEncrypted, scanner.Text(), method, &wg)
 
+		}
+		wg.Wait()
+		fmt.Println("No matches found")
+	} else {
+		methods := [8]string{"raw", "MD4", "MD5", "SHA-1", "SHA-224", "SHA-256", "SHA-384", "SHA-512"}
+		for i := 0; i < len(methods); i++ {
+			fmt.Printf("Method: %s\n", methods[i])
+			file, err := os.Open(filePath)
+			if err != nil {
+				fmt.Println("Error during opening file:", err)
+				return
+			}
+			scanner := bufio.NewScanner(file)
+			for scanner.Scan() {
+				// Evaluate next potentially correct password
+				wg.Add(1)
+				go worker(targetEncrypted, scanner.Text(), methods[i], &wg)
+
+			}
+			wg.Wait()
+		}
+
+		fmt.Println("No matches found")
 	}
 
-	wg.Wait()
-	fmt.Println("No matches found")
 }
