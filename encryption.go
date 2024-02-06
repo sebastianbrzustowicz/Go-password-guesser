@@ -2,6 +2,11 @@
 
 package main
 
+import (
+	"log"
+	"os"
+)
+
 func encryption(target, method string) (encrypted_pw string) {
 	switch method {
 	case "raw":
@@ -30,7 +35,8 @@ func encryption(target, method string) (encrypted_pw string) {
 		// no implementation
 		return target
 	default:
-		//fmt.Println("Raw password method")
+		log.Println("Unknown encryption method:", method)
+		os.Exit(1)
 		return target
 	}
 }

@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"log"
 	"os"
 	"sync"
 )
@@ -30,7 +31,7 @@ func pwCracker() {
 		// Read file
 		file, err := os.Open(filePath)
 		if err != nil {
-			fmt.Println("Error during opening file:", err)
+			log.Println("Error during opening file:", err)
 			return
 		}
 		defer file.Close()
@@ -66,7 +67,7 @@ func methodWorker(targetEncrypted, filePath, actualMethod string, wgMethod *sync
 	defer wgMethod.Done()
 	file, err := os.Open(filePath)
 	if err != nil {
-		fmt.Println("Error during opening file:", err)
+		log.Println("Error during opening file:", err)
 		return
 	}
 	defer file.Close()
@@ -76,7 +77,9 @@ func methodWorker(targetEncrypted, filePath, actualMethod string, wgMethod *sync
 		// Evaluate next potentially correct password
 		wg.Add(1)
 		go worker(targetEncrypted, scanner.Text(), actualMethod, &wg)
-
+	}
+	if err := scanner.Err(); err != nil {
+		fmt.Println("Error during file reading:", err)
 	}
 	wg.Wait()
 }
